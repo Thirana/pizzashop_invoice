@@ -1,4 +1,4 @@
-FROM golang:1.21
+FROM golang:1.24
 
 WORKDIR /app
 
@@ -8,6 +8,7 @@ RUN go mod download
 COPY . .
 
 RUN go build -o main ./cmd/api
+RUN chmod +x main
 
 EXPOSE 8080
 
