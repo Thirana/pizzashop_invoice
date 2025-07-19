@@ -69,3 +69,34 @@ func (m *InvoiceModel) CreateInvoice(invoice Invoice) error {
 
 	return tx.Commit()
 }
+
+// GetInvoiceByID retrieves an invoice by its ID from the database.
+func (m *InvoiceModel) GetInvoiceByID(id int) (*Invoice, error) {
+	// Get invoice details
+	query := `SELECT id, customer_name, tax, total, created_at FROM invoices WHERE id = $1`
+	var invoice Invoice
+	err := m.DB.QueryRow(query, id).Scan(&invoice.ID, &invoice.CustomerName, &invoice.Tax, &invoice.Total, &invoice.CreatedAt)
+	if err != nil {
+		return nil, err
+	}
+
+	// Get invoice items
+	itemsQuery := `SELECT item_id, quantity, price FROM invoice_items WHERE invoice_id = $1`
+	rows, err := m.DB.Query(itemsQuery, id)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []InvoiceItem
+	for rows.Next() {
+		var item InvoiceItem
+		if err := rows.Scan(&item.ItemID, &item.Quantity, &item.Price); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+
+	invoice.Items = items
+	return &invoice, nil
+}

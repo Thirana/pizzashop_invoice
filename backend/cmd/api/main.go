@@ -46,6 +46,7 @@ func main() {
 
 	// Invoice routes
 	r.POST("/v1/invoices", invoiceController.CreateInvoiceHandler)
+	r.GET("/v1/invoices/:id", invoiceController.GetInvoiceByIDHandler)
 
 	// Start server
 	if err := r.Run(":8080"); err != nil {
