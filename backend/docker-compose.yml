@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:latest
@@ -10,7 +8,6 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - app-network
@@ -31,9 +28,6 @@ services:
       - DB_NAME=pizzadb
     networks:
       - app-network
-
-volumes:
-  postgres_data:
 
 networks:
   app-network:

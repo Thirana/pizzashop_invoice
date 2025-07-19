@@ -22,9 +22,9 @@ func main() {
 
 	// Initialize models and controllers
 	itemModel := models.NewItemModel(db)
-	
+
 	itemController := controllers.NewItemController(itemModel)
-	
+
 	// Set up Gin router
 	r := gin.Default()
 
@@ -38,11 +38,8 @@ func main() {
 	}))
 
 	// Item routes
-	r.POST("/items", itemController.CreateItemHandler)
-	r.GET("/items", itemController.GetItemsHandler)
-
-
-
+	r.POST("/v1/items", itemController.CreateItemHandler)
+	r.GET("/v1/items", itemController.GetItemsHandler)
 
 	// Start server
 	if err := r.Run(":8080"); err != nil {
