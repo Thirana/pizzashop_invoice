@@ -108,7 +108,7 @@ func (m *InvoiceModel) GetInvoiceByID(id int) (*Invoice, error) {
 
 // GetInvoicesPaginated retrieves a paginated list of invoices with their items.
 func (m *InvoiceModel) GetInvoicesPaginated(offset int) ([]Invoice, error) {
-	const limit = 3
+	const limit = 5
 	query := `SELECT id, customer_name, tax, total, created_at FROM invoices ORDER BY id LIMIT $1 OFFSET $2`
 	rows, err := m.DB.Query(query, limit, offset)
 	if err != nil {

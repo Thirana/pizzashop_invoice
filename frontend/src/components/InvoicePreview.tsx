@@ -30,7 +30,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, items, onPrint
             </tr>
           </thead>
           <tbody>
-            {invoice.items.map((item: any, idx: number) => {
+            {(invoice.items || []).map((item: any, idx: number) => {
               const itemInfo = items.find((it) => it.id === item.item_id);
               return (
                 <tr key={idx}>
@@ -44,8 +44,8 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({ invoice, items, onPrint
           </tbody>
         </table>
         <div className="totals flex flex-col items-end gap-1 text-gray-800">
-          <div>Subtotal: <span className="font-semibold">Rs. {invoice.items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0).toFixed(2)}</span></div>
-          <div>Tax ({invoice.tax}%): <span className="font-semibold">Rs. {((invoice.items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)) * (invoice.tax / 100)).toFixed(2)}</span></div>
+          <div>Subtotal: <span className="font-semibold">Rs. {(invoice.items || []).reduce((sum: number, item: any) => sum + item.price * item.quantity, 0).toFixed(2)}</span></div>
+          <div>Tax ({invoice.tax}%): <span className="font-semibold">Rs. {(((invoice.items || []).reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)) * (invoice.tax / 100)).toFixed(2)}</span></div>
           <div className="total text-lg font-bold">Total: Rs. {invoice.total.toFixed(2)}</div>
         </div>
       </div>

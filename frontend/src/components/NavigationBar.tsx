@@ -3,7 +3,8 @@ import React from "react";
 
 const navLinks = [
   { href: "/", label: "Item Management" },
-  { href: "/invoice/new", label: "Create Invoice" },
+  { href: "/invoices/new", label: "Create Invoice" },
+  { href: "/invoices", label: "Invoice Management" },
 ];
 
 const NavigationBar: React.FC = () => (
@@ -11,9 +12,11 @@ const NavigationBar: React.FC = () => (
     <div className="max-w-5xl mx-auto px-8 flex items-center h-16 justify-between">
       {/* Logo/Shop Name */}
       <div className="flex items-center min-w-0">
-        <span className="text-2xl font-extrabold tracking-widest text-green-600 select-none" style={{ letterSpacing: "0.12em" }}>
-          PUZZLE PIZZA
-        </span>
+        <Link href="/" prefetch={false}>
+          <span className="text-2xl font-extrabold tracking-widest text-green-600 select-none cursor-pointer" style={{ letterSpacing: "0.12em" }}>
+            PUZZLE PIZZA
+          </span>
+        </Link>
       </div>
       {/* Navigation Links */}
       <div className="flex gap-8 ml-auto">
