@@ -23,6 +23,8 @@ func main() {
 	// Initialize models and controllers
 	itemModel := models.NewItemModel(db)
 	itemController := controllers.NewItemController(itemModel)
+	invoiceModel := models.NewInvoiceModel(db)
+	invoiceController := controllers.NewInvoiceController(invoiceModel)
 
 	// Set up Gin router
 	r := gin.Default()
@@ -41,6 +43,9 @@ func main() {
 	r.GET("/v1/items", itemController.GetItemsHandler)
 	r.PUT("/v1/items/:id", itemController.UpdateItemHandler)
 	r.DELETE("/v1/items/:id", itemController.DeleteItemHandler)
+
+	// Invoice routes
+	r.POST("/v1/invoices", invoiceController.CreateInvoiceHandler)
 
 	// Start server
 	if err := r.Run(":8080"); err != nil {
