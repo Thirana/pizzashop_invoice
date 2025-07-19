@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"pizza-shop-backend/internal/models"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -59,4 +60,21 @@ func (c *InvoiceController) GetInvoiceByIDHandler(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, invoice)
+}
+
+// GetInvoicesPaginatedHandler handles GET /invoices with pagination.
+func (c *InvoiceController) GetInvoicesPaginatedHandler(ctx *gin.Context) {
+	page := 1
+	if p := ctx.Query("page"); p != "" {
+		if n, err := strconv.Atoi(p); err == nil && n > 0 {
+			page = n
+		}
+	}
+	offset := (page - 1) * 3
+	invoices, err := c.Model.GetInvoicesPaginated(offset)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, invoices)
 }

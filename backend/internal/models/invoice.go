@@ -100,3 +100,43 @@ func (m *InvoiceModel) GetInvoiceByID(id int) (*Invoice, error) {
 	invoice.Items = items
 	return &invoice, nil
 }
+
+// GetInvoicesPaginated retrieves a paginated list of invoices with their items.
+func (m *InvoiceModel) GetInvoicesPaginated(offset int) ([]Invoice, error) {
+	const limit = 3
+	query := `SELECT id, customer_name, tax, total, created_at FROM invoices ORDER BY id LIMIT $1 OFFSET $2`
+	rows, err := m.DB.Query(query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var invoices []Invoice
+	for rows.Next() {
+		var invoice Invoice
+		if err := rows.Scan(&invoice.ID, &invoice.CustomerName, &invoice.Tax, &invoice.Total, &invoice.CreatedAt); err != nil {
+			return nil, err
+		}
+
+		// Fetch items for each invoice
+		itemsQuery := `SELECT item_id, quantity, price FROM invoice_items WHERE invoice_id = $1`
+		itemRows, err := m.DB.Query(itemsQuery, invoice.ID)
+		if err != nil {
+			return nil, err
+		}
+		var items []InvoiceItem
+		for itemRows.Next() {
+			var item InvoiceItem
+			if err := itemRows.Scan(&item.ItemID, &item.Quantity, &item.Price); err != nil {
+				itemRows.Close()
+				return nil, err
+			}
+			items = append(items, item)
+		}
+		itemRows.Close()
+		invoice.Items = items
+
+		invoices = append(invoices, invoice)
+	}
+	return invoices, nil
+}
