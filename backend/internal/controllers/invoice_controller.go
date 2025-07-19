@@ -27,11 +27,17 @@ func (c *InvoiceController) CreateInvoiceHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := c.Model.CreateInvoice(invoice); err != nil {
+	if err := c.Model.CreateInvoice(&invoice); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusCreated, invoice)
+	// Fetch the full invoice from DB to get all fields (ID, total, created_at)
+	fullInvoice, err := c.Model.GetInvoiceByID(invoice.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusCreated, fullInvoice)
 }
 
 // GetInvoiceByIDHandler handles GET /invoices/:id.

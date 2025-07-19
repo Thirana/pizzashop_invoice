@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import PrimaryButton from "@/components/PrimaryButton";
 import Message from "@/components/Message";
 
@@ -30,6 +30,7 @@ export default function InvoiceCreatePage() {
   const [loading, setLoading] = useState(false);
   const [createdInvoice, setCreatedInvoice] = useState<any | null>(null);
   const [showPrint, setShowPrint] = useState(false);
+  const invoiceRef = useRef<HTMLDivElement>(null);
 
   // Fetch items from backend
   useEffect(() => {
@@ -136,6 +137,57 @@ export default function InvoiceCreatePage() {
     }
   };
 
+  // Print only the invoice section
+  const handlePrint = () => {
+    if (!invoiceRef.current) return;
+    const printContents = invoiceRef.current.innerHTML;
+    const printWindow = window.open('', '', 'height=800,width=800');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Invoice - PUZZELS</title>
+            <style>
+              body { font-family: 'Segoe UI', Arial, Helvetica, sans-serif; background: #f4f6fa; color: #222; margin: 0; padding: 0; }
+              .print-invoice-container { max-width: 720px; margin: 40px auto; background: #fff; border-radius: 18px; box-shadow: 0 6px 32px 0 rgba(0,0,0,0.10); padding: 0 0 36px 0; }
+              .header-bar { background: linear-gradient(90deg, #10b981 0%, #059669 100%); border-radius: 18px 18px 0 0; padding: 32px 0 24px 0; text-align: center; }
+              .shop-header { color: #fff; font-size: 2.5rem; font-weight: 800; letter-spacing: 0.12em; margin-bottom: 0; }
+              .invoice-title { color: #059669; font-size: 1.45rem; font-weight: 700; margin: 32px 0 18px 0; text-align: left; padding-left: 40px; }
+              .info-row { display: flex; justify-content: space-between; padding: 0 40px 18px 40px; font-size: 1.08rem; color: #444; }
+              .info-row div { margin-bottom: 0.2rem; }
+              table { width: 90%; margin: 0 auto 1.5rem auto; border-collapse: collapse; border-radius: 8px; overflow: hidden; }
+              th, td { border: 1px solid #e5e7eb; padding: 12px 14px; text-align: left; font-size: 1.05rem; }
+              th { background: #f3f4f6; font-weight: 700; color: #059669; }
+              tr:last-child td { border-bottom: 2px solid #059669; }
+              .totals { width: 90%; margin: 0 auto; text-align: right; margin-top: 1.5rem; }
+              .totals div { margin-bottom: 0.3rem; font-size: 1.08rem; }
+              .totals .total { font-size: 1.25rem; font-weight: 700; color: #059669; }
+              .footer { margin-top: 2.5rem; text-align: center; color: #888; font-size: 1.05rem; letter-spacing: 0.04em; }
+              @media (max-width: 600px) {
+                .print-invoice-container, .info-row, .invoice-title, .totals, table { padding-left: 10px !important; padding-right: 10px !important; width: 100% !important; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="print-invoice-container">
+              <div class="header-bar">
+                <div class="shop-header">PUZZELS</div>
+              </div>
+              ${printContents}
+              <div class="footer">Thank you for choosing PUZZELS!<br/>We hope to see you again soon.</div>
+            </div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+      }, 300);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white min-h-screen">
       <h1 className="text-3xl font-bold mb-8 text-center text-gray-900 tracking-tight">Create Invoice</h1>
@@ -211,50 +263,55 @@ export default function InvoiceCreatePage() {
 
       {/* Printable Invoice View */}
       {showPrint && createdInvoice && (
-        <div className="mt-12 bg-white border border-gray-200 rounded-xl shadow-lg p-10 print:p-0 print:shadow-none print:border-0">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-2xl font-bold text-gray-900">Invoice</h2>
+        <>
+          <div ref={invoiceRef} className="mt-12 bg-white border border-gray-200 rounded-xl shadow-lg p-10 print:p-0 print:shadow-none print:border-0">
+            {/* Shop Name Header (visible on screen) */}
+            <div className="shop-header text-3xl font-extrabold text-green-700 mb-6 tracking-widest text-center">PUZZELS</div>
+            <div className="invoice-title text-2xl font-bold text-green-700 mb-4 tracking-widest text-left">Invoice</div>
+            <div className="info-row flex justify-between mb-8 text-gray-700">
+              <div><span className="font-medium">Customer:</span> {createdInvoice.customer_name}</div>
+              <div><span className="font-medium">Date:</span> {createdInvoice.created_at ? new Date(createdInvoice.created_at).toLocaleString() : "-"}</div>
+              <div><span className="font-medium">Invoice ID:</span> {createdInvoice.id}</div>
+            </div>
+            <table className="w-full mb-6 border-t border-b border-gray-200">
+              <thead>
+                <tr className="bg-gray-50">
+                  <th className="py-2 px-4 text-left">Item</th>
+                  <th className="py-2 px-4 text-left">Quantity</th>
+                  <th className="py-2 px-4 text-left">Unit Price</th>
+                  <th className="py-2 px-4 text-left">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {createdInvoice.items.map((item: any, idx: number) => {
+                  const itemInfo = items.find((it) => it.id === item.item_id);
+                  return (
+                    <tr key={idx}>
+                      <td className="py-2 px-4">{itemInfo ? itemInfo.name : `Item #${item.item_id}`}</td>
+                      <td className="py-2 px-4">{item.quantity}</td>
+                      <td className="py-2 px-4">Rs. {item.price.toFixed(2)}</td>
+                      <td className="py-2 px-4">Rs. {(item.price * item.quantity).toFixed(2)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+            <div className="totals flex flex-col items-end gap-1 text-gray-800">
+              <div>Subtotal: <span className="font-semibold">Rs. {createdInvoice.items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0).toFixed(2)}</span></div>
+              <div>Tax ({createdInvoice.tax}%): <span className="font-semibold">Rs. {((createdInvoice.items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)) * (createdInvoice.tax / 100)).toFixed(2)}</span></div>
+              <div className="total text-lg font-bold">Total: Rs. {createdInvoice.total.toFixed(2)}</div>
+            </div>
+          </div>
+          {/* Print Button below the invoice, only visible on screen */}
+          <div className="flex justify-end mt-4">
             <button
-              className="bg-green-600 text-white px-6 py-2 rounded-full shadow hover:bg-green-700 print:hidden"
-              onClick={() => window.print()}
+              className="bg-green-600 text-white px-6 py-2 rounded-full shadow hover:bg-green-700 print:hidden cursor-pointer transition duration-150"
+              onClick={handlePrint}
             >
               Print
             </button>
           </div>
-          <div className="mb-4 text-gray-700">
-            <div><span className="font-medium">Customer:</span> {createdInvoice.customer_name}</div>
-            <div><span className="font-medium">Date:</span> {createdInvoice.created_at ? new Date(createdInvoice.created_at).toLocaleString() : "-"}</div>
-            <div><span className="font-medium">Invoice ID:</span> {createdInvoice.id}</div>
-          </div>
-          <table className="w-full mb-6 border-t border-b border-gray-200">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="py-2 px-4 text-left">Item</th>
-                <th className="py-2 px-4 text-left">Quantity</th>
-                <th className="py-2 px-4 text-left">Unit Price</th>
-                <th className="py-2 px-4 text-left">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              {createdInvoice.items.map((item: any, idx: number) => {
-                const itemInfo = items.find((it) => it.id === item.item_id);
-                return (
-                  <tr key={idx}>
-                    <td className="py-2 px-4">{itemInfo ? itemInfo.name : `Item #${item.item_id}`}</td>
-                    <td className="py-2 px-4">{item.quantity}</td>
-                    <td className="py-2 px-4">Rs. {item.price.toFixed(2)}</td>
-                    <td className="py-2 px-4">Rs. {(item.price * item.quantity).toFixed(2)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div className="flex flex-col items-end gap-1 text-gray-800">
-            <div>Subtotal: <span className="font-semibold">Rs. {createdInvoice.items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0).toFixed(2)}</span></div>
-            <div>Tax ({createdInvoice.tax}%): <span className="font-semibold">Rs. {((createdInvoice.items.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0)) * (createdInvoice.tax / 100)).toFixed(2)}</span></div>
-            <div className="text-lg font-bold">Total: Rs. {createdInvoice.total.toFixed(2)}</div>
-          </div>
-        </div>
+        </>
       )}
     </div>
   );

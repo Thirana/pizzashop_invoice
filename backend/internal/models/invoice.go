@@ -33,7 +33,7 @@ func NewInvoiceModel(db *sql.DB) *InvoiceModel {
 }
 
 // CreateInvoice adds a new invoice to the database, calculating total automatically.
-func (m *InvoiceModel) CreateInvoice(invoice Invoice) error {
+func (m *InvoiceModel) CreateInvoice(invoice *Invoice) error {
 	tx, err := m.DB.Begin()
 	if err != nil {
 		return err
@@ -48,10 +48,11 @@ func (m *InvoiceModel) CreateInvoice(invoice Invoice) error {
 	// Calculate tax as percentage of items total
 	taxAmount := itemsTotal * (invoice.Tax / 100.0)
 	total := itemsTotal + taxAmount
+	createdAt := time.Now()
 
 	// Insert invoice with current timestamp
 	query := `INSERT INTO invoices (customer_name, tax, total, created_at) VALUES ($1, $2, $3, $4) RETURNING id`
-	err = tx.QueryRow(query, invoice.CustomerName, invoice.Tax, total, time.Now()).Scan(&invoice.ID)
+	err = tx.QueryRow(query, invoice.CustomerName, invoice.Tax, total, createdAt).Scan(&invoice.ID)
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -66,6 +67,10 @@ func (m *InvoiceModel) CreateInvoice(invoice Invoice) error {
 			return err
 		}
 	}
+
+	// Set calculated fields on the struct
+	invoice.Total = total
+	invoice.CreatedAt = createdAt
 
 	return tx.Commit()
 }
