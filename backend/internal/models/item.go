@@ -45,3 +45,17 @@ func (m *ItemModel) GetItems() ([]Item, error) {
 	}
 	return items, nil
 }
+
+// UpdateItem updates an existing item in the database.
+func (m *ItemModel) UpdateItem(item Item) error {
+	query := `UPDATE items SET name=$1, type=$2, price=$3, description=$4 WHERE id=$5`
+	_, err := m.DB.Exec(query, item.Name, item.Type, item.Price, item.Description, item.ID)
+	return err
+}
+
+// DeleteItem deletes an item from the database by ID.
+func (m *ItemModel) DeleteItem(id int) error {
+	query := `DELETE FROM items WHERE id=$1`
+	_, err := m.DB.Exec(query, id)
+	return err
+}
