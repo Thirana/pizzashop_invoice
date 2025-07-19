@@ -46,6 +46,28 @@ func (m *ItemModel) GetItems() ([]Item, error) {
 	return items, nil
 }
 
+// GetItemsPaginated retrieves items from the database with pagination.
+func (m *ItemModel) GetItemsPaginated(page int) ([]Item, error) {
+	const limit = 10
+	offset := (page - 1) * limit
+	query := `SELECT id, name, type, price, description FROM items ORDER BY id LIMIT $1 OFFSET $2`
+	rows, err := m.DB.Query(query, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var items []Item
+	for rows.Next() {
+		var item Item
+		if err := rows.Scan(&item.ID, &item.Name, &item.Type, &item.Price, &item.Description); err != nil {
+			return nil, err
+		}
+		items = append(items, item)
+	}
+	return items, nil
+}
+
 // UpdateItem updates an existing item in the database.
 func (m *ItemModel) UpdateItem(item Item) error {
 	query := `UPDATE items SET name=$1, type=$2, price=$3, description=$4 WHERE id=$5`

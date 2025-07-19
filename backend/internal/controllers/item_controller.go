@@ -40,6 +40,22 @@ func (c *ItemController) GetItemsHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, items)
 }
 
+// GetItemsPaginatedHandler handles GET /items/paginated.
+func (c *ItemController) GetItemsPaginatedHandler(ctx *gin.Context) {
+	page := 1
+	if p := ctx.Query("page"); p != "" {
+		if n, err := strconv.Atoi(p); err == nil && n > 0 {
+			page = n
+		}
+	}
+	items, err := c.Model.GetItemsPaginated(page)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, items)
+}
+
 // UpdateItemHandler handles PUT /items/:id.
 func (c *ItemController) UpdateItemHandler(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))

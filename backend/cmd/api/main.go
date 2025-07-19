@@ -41,6 +41,7 @@ func main() {
 	// Item routes
 	r.POST("/v1/items", itemController.CreateItemHandler)
 	r.GET("/v1/items", itemController.GetItemsHandler)
+	r.GET("/v1/items/paginated", itemController.GetItemsPaginatedHandler)
 	r.PUT("/v1/items/:id", itemController.UpdateItemHandler)
 	r.DELETE("/v1/items/:id", itemController.DeleteItemHandler)
 
