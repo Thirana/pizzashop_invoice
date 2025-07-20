@@ -35,10 +35,10 @@ Before setting up the project, ensure you have the following installed on your s
 - **Docker Compose** (v2.0+) - Usually included with Docker Desktop
 - **Node.js** (v18+) - [Download here](https://nodejs.org/)
 - **npm** or **yarn** - Package managers for Node.js
-- **Go** (v1.24+) - [Download here](https://golang.org/dl/)
 
 ### Optional Dependencies
 - **Git** - For version control
+- **Go** (v1.24+) - [Download here](https://golang.org/dl/) - Only needed for backend development. Not required to run the backend
 - **PostgreSQL** (if running locally without Docker)
 
 ## 🚀 Getting Started
