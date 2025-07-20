@@ -50,6 +50,8 @@ git clone https://github.com/Thirana/pizzashop_invoice.git
 cd pizzashop_invoice
 ```
 
+- **Note** - If you are using the zipped version of the project, extract the contents and navigate to the project’s root directory. Then, open a command prompt (on Windows) or terminal (on macOS) from that location, and follow the similar instructions outlined below accordingly.
+
 ### 2. Backend Setup
 
 The backend uses Docker Compose to manage both the API and database services.
@@ -85,11 +87,8 @@ npm install
 npm run dev
 ```
 
-The frontend will be available at:
-- **Application**: http://localhost:3000
 
-
-
+Once the frontend server is running, open your web browser and go to [http://localhost:3000](http://localhost:3000) to access the application.
 
 
 ## 🔍 Troubleshooting
