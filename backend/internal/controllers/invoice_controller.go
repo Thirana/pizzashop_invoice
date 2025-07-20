@@ -20,7 +20,7 @@ func NewInvoiceController(model *models.InvoiceModel) *InvoiceController {
 	return &InvoiceController{Model: model}
 }
 
-// CreateInvoiceHandler handles POST /invoices.
+// handles POST /invoices.
 func (c *InvoiceController) CreateInvoiceHandler(ctx *gin.Context) {
 	var invoice models.Invoice
 	if err := ctx.ShouldBindJSON(&invoice); err != nil {
@@ -40,7 +40,7 @@ func (c *InvoiceController) CreateInvoiceHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, fullInvoice)
 }
 
-// GetInvoiceByIDHandler handles GET /invoices/:id.
+// handles GET /invoices/:id.
 func (c *InvoiceController) GetInvoiceByIDHandler(ctx *gin.Context) {
 	id := ctx.Param("id")
 	if id == "" {
@@ -68,7 +68,7 @@ func (c *InvoiceController) GetInvoiceByIDHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, invoice)
 }
 
-// GetInvoicesPaginatedHandler handles GET /invoices with pagination.
+// handles GET /invoices with pagination.
 func (c *InvoiceController) GetInvoicesPaginatedHandler(ctx *gin.Context) {
 	page := 1
 	if p := ctx.Query("page"); p != "" {

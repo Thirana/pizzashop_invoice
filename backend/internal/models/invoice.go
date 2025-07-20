@@ -32,7 +32,7 @@ func NewInvoiceModel(db *sql.DB) *InvoiceModel {
 	return &InvoiceModel{DB: db}
 }
 
-// CreateInvoice adds a new invoice to the database, calculating total automatically.
+// adds a new invoice to the database, calculating total automatically.
 func (m *InvoiceModel) CreateInvoice(invoice *Invoice) error {
 	tx, err := m.DB.Begin()
 	if err != nil {
@@ -75,9 +75,9 @@ func (m *InvoiceModel) CreateInvoice(invoice *Invoice) error {
 	return tx.Commit()
 }
 
-// GetInvoiceByID retrieves an invoice by its ID from the database.
+// retrieves an invoice by its ID from the database.
 func (m *InvoiceModel) GetInvoiceByID(id int) (*Invoice, error) {
-	// Get invoice details
+	// Query the invoice details from the invoices table
 	query := `SELECT id, customer_name, tax, total, created_at FROM invoices WHERE id = $1`
 	var invoice Invoice
 	err := m.DB.QueryRow(query, id).Scan(&invoice.ID, &invoice.CustomerName, &invoice.Tax, &invoice.Total, &invoice.CreatedAt)
@@ -85,7 +85,7 @@ func (m *InvoiceModel) GetInvoiceByID(id int) (*Invoice, error) {
 		return nil, err
 	}
 
-	// Get invoice items
+	// Query all items associated with the invoice from the invoice_items table
 	itemsQuery := `SELECT item_id, quantity, price FROM invoice_items WHERE invoice_id = $1`
 	rows, err := m.DB.Query(itemsQuery, id)
 	if err != nil {
@@ -93,6 +93,7 @@ func (m *InvoiceModel) GetInvoiceByID(id int) (*Invoice, error) {
 	}
 	defer rows.Close()
 
+	// Iterate over the result rows, scanning each row into an InvoiceItem and appending it to the items slice
 	var items []InvoiceItem
 	for rows.Next() {
 		var item InvoiceItem
@@ -102,11 +103,12 @@ func (m *InvoiceModel) GetInvoiceByID(id int) (*Invoice, error) {
 		items = append(items, item)
 	}
 
+	// Assign the collected items to the invoice struct
 	invoice.Items = items
 	return &invoice, nil
 }
 
-// GetInvoicesPaginated retrieves a paginated list of invoices with their items.
+// retrieves a paginated list of invoices with their items.
 func (m *InvoiceModel) GetInvoicesPaginated(offset int) ([]Invoice, error) {
 	const limit = 5
 	query := `SELECT id, customer_name, tax, total, created_at FROM invoices ORDER BY id LIMIT $1 OFFSET $2`
@@ -143,5 +145,6 @@ func (m *InvoiceModel) GetInvoicesPaginated(offset int) ([]Invoice, error) {
 
 		invoices = append(invoices, invoice)
 	}
+
 	return invoices, nil
 }

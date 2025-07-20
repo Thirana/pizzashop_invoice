@@ -16,7 +16,7 @@ func NewItemController(model *models.ItemModel) *ItemController {
 	return &ItemController{Model: model}
 }
 
-// CreateItemHandler handles POST /items.
+// handles POST /items.
 func (c *ItemController) CreateItemHandler(ctx *gin.Context) {
 	var item models.Item
 	if err := ctx.ShouldBindJSON(&item); err != nil {
@@ -30,7 +30,7 @@ func (c *ItemController) CreateItemHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, item)
 }
 
-// GetItemsHandler handles GET /items.
+// handles GET /items.
 func (c *ItemController) GetItemsHandler(ctx *gin.Context) {
 	items, err := c.Model.GetItems()
 	if err != nil {
@@ -40,7 +40,7 @@ func (c *ItemController) GetItemsHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, items)
 }
 
-// GetItemsPaginatedHandler handles GET /items/paginated.
+// handles GET /items/paginated.
 func (c *ItemController) GetItemsPaginatedHandler(ctx *gin.Context) {
 	page := 1
 	if p := ctx.Query("page"); p != "" {
@@ -56,7 +56,7 @@ func (c *ItemController) GetItemsPaginatedHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, items)
 }
 
-// UpdateItemHandler handles PUT /items/:id.
+// handles PUT /items/:id.
 func (c *ItemController) UpdateItemHandler(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
@@ -76,7 +76,7 @@ func (c *ItemController) UpdateItemHandler(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, item)
 }
 
-// DeleteItemHandler handles DELETE /items/:id.
+// handles DELETE /items/:id.
 func (c *ItemController) DeleteItemHandler(ctx *gin.Context) {
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
