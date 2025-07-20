@@ -53,6 +53,7 @@ cd pizzashop_invoice
 ### 2. Backend Setup
 
 The backend uses Docker Compose to manage both the API and database services.
+Make sure Docker Deamon is running before executing following Docker related commands
 
 ```bash
 # Navigate to backend directory
